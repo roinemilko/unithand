@@ -23,4 +23,4 @@ python3 main.py
 # TODO
 - Label errors
 - Symbolic integration / differentiation
-- 
+- Lookup for erf values, quantiles etc
