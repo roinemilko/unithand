@@ -91,7 +91,7 @@ def get_preview():
 
 preview_control = FormattedTextControl(text=get_preview)
 
-preview = Formatcontainer = HSplit([
+preview = HSplit([
 	Window(content = preview_control, height = 15),
 	Window(height = 1, char = '-'),
 	Window(content = BufferControl(buffer = buffer),
