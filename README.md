@@ -11,15 +11,24 @@ Clone repo by
 ```bash
 git clone github.com/roinemilko/unithand
 ```
-Start a python venv by running
+Create environment & get dependencies in bash
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
 ```
+or in PowerShell
+```PowerShell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
 Then run main.py
 ```bash
 python3 main.py
 ```
+
 
 # TODO
 - Label errors
