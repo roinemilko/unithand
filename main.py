@@ -10,7 +10,7 @@ from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.key_binding import KeyBindings
-from sympy.physics.units import convert_to
+from sympy.physics.units import convert_to, UnitSystem
 from sympy.physics.units.util import quantity_simplify
 from sympy.parsing.sympy_parser import (
     parse_expr,
@@ -36,6 +36,11 @@ SI_BASE = [
 current_expr = None
 state = 0
 
+class IncompatibleDims(Exception):
+    def __init__(self):
+        super().__init__()
+    def __str__(self):
+        return f"Check dimentions!"
 
 def get_units():
     unit_dict = {}
@@ -95,6 +100,15 @@ def get_preview():
             return ""
 
 
+def dim_sanity_check(expr1, expr2):
+    try:
+        si_sys = UnitSystem.get_unit_system("SI")
+        dim1 = si_sys.get_dimensional_expr(expr1)
+        dim2 = si_sys.get_dimensional_expr(expr2)
+        return dim1 == dim2
+    except AttributeError:
+        return False
+
 preview_control = FormattedTextControl(text=get_preview)
 
 preview = HSplit([
@@ -149,6 +163,8 @@ def calculate(event):
             base_expr = convert_to(current_expr, SI_BASE)
 
             if target_unit:
+                if not dim_sanity_check(base_expr, target_unit):
+                    raise IncompatibleDims
                 final_result = convert_to(current_expr, target_unit)
             else:
                 numeric = base_expr.evalf()
