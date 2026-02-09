@@ -1,4 +1,8 @@
-from sympy import pretty
+from sympy import (
+    pretty,
+    erf,
+    erfc
+)
 import re
 from prompt_toolkit import Application
 from prompt_toolkit.buffer import Buffer
@@ -57,7 +61,9 @@ def get_units():
         'G': sympy_units.gravitational_constant,
         'q':sympy_units.elementary_charge,
         'me':sympy_units.electron_rest_mass,
-        'g': sympy_units.gram
+        'g': sympy_units.gram,
+        'erf': erf,
+        'erfc': erfc
     }
     unit_dict.update(aliases)
 
@@ -95,7 +101,7 @@ preview = HSplit([
 	Window(content = preview_control, height = 15),
 	Window(height = 1, char = '-'),
 	Window(content = BufferControl(buffer = buffer),
-           height = 1)
+           height = 2)
 ])
 
 kb = KeyBindings()
@@ -108,6 +114,10 @@ def exit_app(event):
 def calculate(event):
     global current_expr
     global state
+
+    if state == -1:
+        buffer.reset()
+        state = 0
 
     if state == 0:
         text = buffer.text
@@ -137,7 +147,6 @@ def calculate(event):
 
         try:
             base_expr = convert_to(current_expr, SI_BASE)
-            final_result = None
 
             if target_unit:
                 final_result = convert_to(current_expr, target_unit)
@@ -149,9 +158,10 @@ def calculate(event):
             buffer.text = str(final_result).replace('*', ' ')
             buffer.cursor_position = len(buffer.text)
 
-        except Exception:
-            state = 0
-            buffer.text = f"Error: {str(Exception)}"
+        except Exception as e:
+            state = -1
+            buffer.text = f"Error: {e}\nPress ENTER to continue... "
+
 
 
 app = Application(
