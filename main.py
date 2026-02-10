@@ -10,7 +10,7 @@ from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.key_binding import KeyBindings
-from sympy.physics.units import convert_to, UnitSystem
+from sympy.physics.units import convert_to
 from sympy.physics.units.util import quantity_simplify
 from sympy.parsing.sympy_parser import (
     parse_expr,
@@ -103,8 +103,10 @@ def get_preview():
 def dim_sanity_check(expr1, expr2):
     try:
         si_sys = UnitSystem.get_unit_system("SI")
-        dim1 = si_sys.get_dimensional_expr(expr1)
-        dim2 = si_sys.get_dimensional_expr(expr2)
+        dim1 = convert_to(expr1, SI_BASE)
+        dim2 = convert_to(expr2, SI_BASE)
+        dim1 = si_sys.get_dimensional_expr(dim1)
+        dim2 = si_sys.get_dimensional_expr(dim2)
         return dim1 == dim2
     except AttributeError:
         return False
@@ -171,7 +173,11 @@ def calculate(event):
                 final_result = quantity_simplify(numeric)
 
             state = 0
-            buffer.text = str(final_result).replace('*', ' ')
+            display_str = (str(final_result).replace('**', '^')
+                                            .replace('*', ' ')
+                                            .replace('^', '**')
+                           )
+            buffer.text = display_str
             buffer.cursor_position = len(buffer.text)
 
         except Exception as e:
